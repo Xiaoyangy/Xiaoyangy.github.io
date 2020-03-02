@@ -106,7 +106,8 @@
   <entry>
     <title>关于面试的问题</title>
     <url>/2020/03/01/C/</url>
-    <content><![CDATA[<h1 id="以后要准备充分再面试"><a href="#以后要准备充分再面试" class="headerlink" title="以后要准备充分再面试"></a>以后要准备充分再面试</h1>]]></content>
+    <content><![CDATA[<h1 id="以后要准备充分再面试"><a class="markdownIt-Anchor" href="#以后要准备充分再面试"></a> 以后要准备充分再面试</h1>
+]]></content>
       <categories>
         <category>JAVA</category>
       </categories>
@@ -117,13 +118,14 @@
   <entry>
     <title>JAVA面试1</title>
     <url>/2020/03/01/JAVA/</url>
-    <content><![CDATA[<h4 id="JAVA内存机制"><a href="#JAVA内存机制" class="headerlink" title="JAVA内存机制"></a>JAVA内存机制</h4><blockquote>
+    <content><![CDATA[<h4 id="java内存机制"><a class="markdownIt-Anchor" href="#java内存机制"></a> JAVA内存机制</h4>
+<blockquote>
 <ul>
 <li>私有内存区:伴随线程产生而产生 , 一旦线程终止, 私有内存区也会自动清除</li>
 <li></li>
 </ul>
 </blockquote>
-<p>​    </p>
+<p>​</p>
 ]]></content>
       <categories>
         <category>面试</category>
