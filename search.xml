@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>Spring注入</title>
+    <url>/2020/03/02/Spring%E6%B3%A8%E5%85%A5/</url>
+    <content><![CDATA[<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span> <span class="attr">xmlns:util</span>=<span class="string">"http://www.springframework.org/schema/util"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userDao"</span> <span class="attr">class</span>=<span class="string">"com.itheima.ioc.UserDaoImpl"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userService"</span> <span class="attr">class</span>=<span class="string">"com.itheima.ioc.UserServiceImpl"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"userDao"</span> <span class="attr">ref</span>=<span class="string">"userDao"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h4 id="error"><a class="markdownIt-Anchor" href="#error"></a> Error:</h4>
+<figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">&lt;bean <span class="built_in">id</span>=<span class="string">" "</span> <span class="built_in">class</span>=<span class="string">" "</span>/&gt;    || &lt;bean <span class="built_in">id</span>=<span class="string">" "</span> <span class="built_in">class</span>=<span class="string">""</span>&gt; &lt;<span class="keyword">property</span>&gt; &lt;/<span class="keyword">property</span>&gt;&lt;/bean&gt;均可</span><br></pre></td></tr></table></figure>
+<h5 id="1-依赖注入"><a class="markdownIt-Anchor" href="#1-依赖注入"></a> 1 依赖注入</h5>
+<p>依赖注入的作用是在使用 Spring 框架创建对象时,动态地将其所依赖的对象注入 Bean 组件中, 其实现方式通常有两种, 一种是属性 setter 方法注入, 另一种是构造方法注入.</p>
+<h6 id="setter方法注入"><a class="markdownIt-Anchor" href="#setter方法注入"></a> setter方法注入</h6>
+<blockquote>
+<ul>
+<li>Spring 容器使用 setter 方法注入被依赖的实例. 通过调用无参构造器或无参静态工厂方法实例化Bean 后, 调用该Bean 的setter方法, 即可实现基于setter方法依赖的注入</li>
+</ul>
+</blockquote>
+<h6 id="构造方法注入"><a class="markdownIt-Anchor" href="#构造方法注入"></a> 构造方法注入</h6>
+<blockquote>
+<ul>
+<li>指Spring 容器使用构造方法注入被依赖的实例</li>
+</ul>
+</blockquote>
+<a id="more"></a>
+<p>本章代码小结:</p>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line"><span class="comment">//Test.java</span></span><br><span class="line">package com.itheima.ioc;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.ApplicationContext;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.support.ClassPathXmlApplicationContext;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Test</span> &#123;</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span>  <span class="title">main</span><span class="params">(<span class="keyword">String</span> args[])</span></span>&#123;</span><br><span class="line">            ApplicationContext applicationContext=<span class="keyword">new</span> ClassPathXmlApplicationContext(<span class="string">"applicationContext.xml"</span>);</span><br><span class="line">            UserDao userDao=(UserDao) applicationContext.getBean(<span class="string">"userDao"</span>);</span><br><span class="line">            userDao.say();</span><br><span class="line">            UserService userService=(UserService) applicationContext.getBean(<span class="string">"userService"</span>);</span><br><span class="line">            userService.say();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//UserDao.java</span></span><br><span class="line"><span class="keyword">package</span> com.itheima.ioc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserDao</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">say</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//UserDaoImpl.java</span></span><br><span class="line"><span class="keyword">package</span> com.itheima.ioc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserDaoImpl</span> <span class="keyword">implements</span> <span class="title">UserDao</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">say</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Userdao say hellpo"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//UserService.java</span></span><br><span class="line"><span class="keyword">package</span> com.itheima.ioc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">UserService</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">say</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//UserServiceImpl.java</span></span><br><span class="line"><span class="keyword">package</span> com.itheima.ioc;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserServiceImpl</span> <span class="keyword">implements</span>  <span class="title">UserService</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> UserDao userDao;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setUserDao</span><span class="params">(UserDao userDao)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.userDao=userDao;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">say</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.userDao.say();</span><br><span class="line">        System.out.println(<span class="string">"uSERdao server say heellpo"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>JAVAEE</category>
+      </categories>
+      <tags>
+        <tag>犯过的错误</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>二叉树</title>
+    <url>/2020/03/01/%E4%BA%8C%E5%8F%89%E6%A0%91/</url>
+    <content><![CDATA[<p>树（Tree）是n（n&gt;=0)个结点的有限集。n=0时称为空树。在任意一颗非空树中：<br />
+1）有且仅有一个特定的称为根（Root）的结点；<br />
+2）当n&gt;1时，其余结点可分为m(m&gt;0)个互不相交的有限集T1、T2、…、Tn，其中每一个集合本身又是一棵树，并且称为根的子树。</p>
+<p>此外，树的定义还需要强调以下两点：<br />
+1）n&gt;0时根结点是唯一的，不可能存在多个根结点，数据结构中的树只能有一个根结点。<br />
+2）m&gt;0时，子树的个数没有限制，但它们一定是互不相交的。</p>
+<p>二叉树性质<br />
+1）在二叉树的第i层上最多有2i-1 个节点 。（i&gt;=1）<br />
+2）二叉树中如果深度为k,那么最多有2k-1个节点。(k&gt;=1）<br />
+3）n0=n2+1 n0表示度数为0的节点数，n2表示度数为2的节点数。<br />
+4）在完全二叉树中，具有n个节点的完全二叉树的深度为[log2n]+1，其中[log2n]是向下取整。<br />
+5）若对含 n 个结点的完全二叉树从上到下且从左至右进行 1 至 n 的编号，则对完全二叉树中任意一个编号为 i 的结点有如下特性：</p>
+<p>(1) 若 i=1，则该结点是二叉树的根，无双亲, 否则，编号为 [i/2] 的结点为其双亲结点;<br />
+(2) 若 2i&gt;n，则该结点无左孩子， 否则，编号为 2i 的结点为其左孩子结点；<br />
+(3) 若 2i+1&gt;n，则该结点无右孩子结点， 否则，编号为2i+1 的结点为其右孩子结点。</p>
+<a id="more"></a>
+<p>树的基础结构</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TreeNode</span>* &#123;</span></span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">TreeNode</span>* <span class="title">left</span>;</span></span><br><span class="line">​	<span class="class"><span class="keyword">struct</span> <span class="title">TreeNode</span>* <span class="title">right</span>;</span></span><br><span class="line">​	Typedef val;</span><br><span class="line">    TreeNode(<span class="keyword">int</span> va)&#123;val=va;left==<span class="literal">nullptr</span>;right==<span class="literal">nullptr</span>;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="二叉树的创建"><a class="markdownIt-Anchor" href="#二叉树的创建"></a> 二叉树的创建</h5>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">createTree</span><span class="params">(TreeNode* t,<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; ve,<span class="keyword">int</span> i)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(ve.<span class="built_in">size</span>()==i)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    t=<span class="keyword">new</span> TreeNode(ve[i++]);</span><br><span class="line">    createTree(t-&gt;left,ve,i);</span><br><span class="line">    createTree(t-&gt;right,ve,i);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="二叉树的几种遍历方式"><a class="markdownIt-Anchor" href="#二叉树的几种遍历方式"></a> <strong>二叉树的几种遍历方式</strong></h5>
+<table>
+<thead>
+<tr>
+<th>前序遍历</th>
+<th>根左右</th>
+<th>dfs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>中序遍历</td>
+<td>左根右</td>
+<td>dfs</td>
+</tr>
+<tr>
+<td>后序遍历</td>
+<td>右根左</td>
+<td>dfs</td>
+</tr>
+<tr>
+<td>层序遍历</td>
+<td>一层一层遍历</td>
+<td>bfs</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">//递归算法</span></span><br><span class="line"><span class="comment">//前序遍历</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PreOrderTraverse</span><span class="params">(TreeNode *t)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(t==nullprt)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;t-&gt;val&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    PreOrderTraverse(t-&gt;left);</span><br><span class="line">    PreOrderTraverse(t-&gt;right);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//中序遍历</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">InOrderTraverse</span><span class="params">(TreeNode *t)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(t==<span class="literal">nullptr</span>)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    InOrderTraverse(t-&gt;left);</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;t-&gt;val&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    InOrderTraverse(t-&gt;right);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//后序遍历</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">PostOrderTraverse</span><span class="params">(TreeNode *t)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(t==<span class="literal">nullptr</span>)</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    PostOrderTraverse(t-&gt;left);</span><br><span class="line">    PostOrderTraverse(t-&gt;right);</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;t-&gt;val&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//层序遍历</span></span><br></pre></td></tr></table></figure>
+<p>递归算法时间复杂度往往太高.</p>
+<p>使用非递归算法,先序中序后序,则需要借助栈来实现,层序遍历需借助队列来实现.</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">//非递归先序</span></span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">PreOrder</span><span class="params">(TreeNode* t)</span></span>&#123;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; ve;</span><br><span class="line">    <span class="keyword">if</span>(t==<span class="literal">nullptr</span>)</span><br><span class="line">        <span class="keyword">return</span> ve;</span><br><span class="line">    Stack&lt;TreeNode*&gt; s=<span class="keyword">new</span> Stack&lt;&gt;();</span><br><span class="line">    <span class="keyword">while</span>(!s.empty()||t)&#123;</span><br><span class="line">        <span class="keyword">while</span>(t)&#123;</span><br><span class="line">            ve.push_back(t-&gt;val);</span><br><span class="line">            s.push(t);</span><br><span class="line">            t=t-&gt;left;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(!s.empty())&#123;</span><br><span class="line">            t=s.pop();</span><br><span class="line">            t=t-&gt;right;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> ve;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//非递归中序</span></span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">InOrder</span><span class="params">(TreeNode* t)</span></span>&#123;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; ve;</span><br><span class="line">    <span class="built_in">stack</span>&lt;TreeNode*&gt; s;</span><br><span class="line">    <span class="keyword">while</span>(!s.empty()||t)&#123;</span><br><span class="line">        <span class="keyword">while</span>(t)&#123;</span><br><span class="line">            s.push(t);</span><br><span class="line">            t=t-&gt;left;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(!s.empty())&#123;</span><br><span class="line">            t=s.pop();</span><br><span class="line">            ve.push_back(t-&gt;val);</span><br><span class="line">            t=t-&gt;right;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//非递归后序</span></span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">LastOrder</span><span class="params">(TreeNode* t)</span></span>&#123;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; ve;</span><br><span class="line">    <span class="built_in">stack</span>&lt;TreeNode*&gt; s;</span><br><span class="line">    TreeNode* temp;</span><br><span class="line">    <span class="keyword">while</span>(!s.empty()||t)&#123;</span><br><span class="line">        <span class="keyword">while</span>(t)&#123;</span><br><span class="line">            s.push(t);</span><br><span class="line">            t=t-&gt;left;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(!s.empty())&#123;</span><br><span class="line">            temp=s.pop();</span><br><span class="line">            <span class="keyword">if</span>((t-&gt;right==nullprt)||(t-&gt;right-&gt;val==ve.back()))&#123;</span><br><span class="line">              	ve.push_back(t-&gt;val)</span><br><span class="line">                temp=nullprt;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>&#123;</span><br><span class="line">                s.push(t);</span><br><span class="line">                t=t-&gt;right;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//层序遍历</span></span><br><span class="line"><span class="function"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; <span class="title">SeqTraverse</span><span class="params">(TreeNode* t)</span></span>&#123;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; ve;</span><br><span class="line">    <span class="built_in">queue</span> q;</span><br><span class="line">    q.push(t);</span><br><span class="line">    <span class="keyword">while</span>(!q.empty()||t)&#123;</span><br><span class="line">        TreeNode* w=q.pop();</span><br><span class="line">        ve.push_back(w-&gt;val);</span><br><span class="line">        <span class="keyword">if</span>(w-&gt;left)</span><br><span class="line">            q.push(w-&gt;left);</span><br><span class="line">        <span class="keyword">if</span>(w-&gt;right)</span><br><span class="line">            q.push(w-&gt;right);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>判断二叉树的深度</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">TreeDepth</span><span class="params">(TreeNode* pRoot)</span></span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!pRoot)</span><br><span class="line">            <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">            <span class="built_in">max</span>(<span class="number">1</span>+TreeDepth(pRoot&gt;left),<span class="number">1</span>+TreeDepth(pRoot-&gt;right));</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>C++</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>categories</title>
+    <url>/2020/03/01/categories/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>关于面试的问题</title>
+    <url>/2020/03/01/C/</url>
+    <content><![CDATA[<h1 id="以后要准备充分再面试"><a href="#以后要准备充分再面试" class="headerlink" title="以后要准备充分再面试"></a>以后要准备充分再面试</h1>]]></content>
+      <categories>
+        <category>JAVA</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JAVA面试1</title>
+    <url>/2020/03/01/JAVA/</url>
+    <content><![CDATA[<h4 id="JAVA内存机制"><a href="#JAVA内存机制" class="headerlink" title="JAVA内存机制"></a>JAVA内存机制</h4><blockquote>
+<ul>
+<li>私有内存区:伴随线程产生而产生 , 一旦线程终止, 私有内存区也会自动清除</li>
+<li></li>
+</ul>
+</blockquote>
+<p>​    </p>
+]]></content>
+      <categories>
+        <category>面试</category>
+      </categories>
+      <tags>
+        <tag>JAVA</tag>
+      </tags>
+  </entry>
+</search>
