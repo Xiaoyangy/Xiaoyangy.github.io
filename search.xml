@@ -1,6 +1,257 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Spring题目</title>
+    <url>/2020/03/03/Spring%E9%A2%98%E7%9B%AE/</url>
+    <content><![CDATA[<p><strong>AOP(面向切面编程)</strong></p>
+<p>这种在运行时，动态地将代码切入到类的指定方法、指定位置上的编程思想就是面向切面的编程。</p>
+<p>AOP是Spring提供的关键特性之一。AOP即面向切面编程，是OOP编程的有效补充。</p>
+<p>使用AOP技术，可以将一些系统性相关的编程工作，独立提取出来，独立实现，然后通过切面切入进系统。</p>
+<p>从而避免了在业务逻辑的代码中混入很多的系统相关的逻辑——比如权限管理，事物管理，日志记录等等。</p>
+<p>这些系统性的编程工作都可以独立编码实现，然后通过AOP技术切入进系统即可。从而达到了 将不同的关注点分离出来的效果。</p>
+<p>Spring的AOP的原理。</p>
+<ol>
+<li>AOP相关的概念</li>
+</ol>
+<p>1） <em>Aspect</em> ：切面，切入系统的一个切面。比如事务管理是一个切面，权限管理也是一个切面；</p>
+<p>2） <em>Join point</em> ：连接点，也就是可以进行横向切入的位置；</p>
+<p>3） <em>Advice</em> ：通知，切面在某个连接点执行的操作(分为: <em>Before advice</em> , <em>After returning advice</em> , <em>After throwing advice</em> , <em>After (finally) advice</em> , <em>Around advice</em> )；</p>
+<p>4） <em>Pointcut</em> ：切点，符合切点表达式的连接点，也就是真正被切入的地方；</p>
+<ol start="2">
+<li>AOP 的实现原理</li>
+</ol>
+<p>AOP分为静态AOP和动态AOP。</p>
+<p>静态AOP是指AspectJ实现的AOP，他是将切面代码直接编译到Java类文件中。</p>
+<p>动态AOP是指将切面代码进行动态织入实现的AOP。</p>
+<p>Spring的AOP为动态AOP，实现的技术为： JDK提供的动态代理技术 和 CGLIB(动态字节码增强技术) 。尽管实现技术不一样，但 都是基于代理模式 ， 都是生成一个代理对象 。</p>
+<h4 id="1-jdk动态代理"><a class="markdownIt-Anchor" href="#1-jdk动态代理"></a> 1) JDK动态代理</h4>
+<p>主要使用到 InvocationHandler 接口和 Proxy.newProxyInstance() 方法。</p>
+<p>JDK动态代理要求被代理实现一个接口，只有接口中的方法才能够被代理 。</p>
+<p>其方法是将被代理对象注入到一个中间对象，而中间对象实现InvocationHandler接口，</p>
+<p>在实现该接口时，可以在 被代理对象调用它的方法时，在调用的前后插入一些代码。</p>
+<p>而 Proxy.newProxyInstance() 能够利用中间对象来生产代理对象。</p>
+<p>插入的代码就是切面代码。所以使用JDK动态代理可以实现AOP。</p>
+<p>我们看个例子：</p>
+<p>被代理对象实现的接口，只有接口中的方法才能够被代理：</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">public<span class="built_in"> interface </span>UserService &#123;</span><br><span class="line">    public void addUser(User user);</span><br><span class="line">    public<span class="built_in"> User </span>getUser(int id);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">public class UserServiceImpl implements UserService &#123;</span><br><span class="line">    public void addUser(User user) &#123;</span><br><span class="line">        System.out.println(<span class="string">"add user into database."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    public<span class="built_in"> User </span>getUser(int id) &#123;</span><br><span class="line">       <span class="built_in"> User user </span>= new User();</span><br><span class="line">        user.setId(id);</span><br><span class="line">        System.out.println(<span class="string">"getUser from database."</span>);</span><br><span class="line">        return user;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代理中间类：</p>
+<figure class="highlight aspectj"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationHandler;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Method;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProxyUtil</span> <span class="keyword">implements</span> <span class="title">InvocationHandler</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Object <span class="keyword">target</span>;    <span class="comment">// 被代理的对象</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function">Object <span class="title">invoke</span><span class="params">(Object proxy, Method method, Object[] args)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"do sth before...."</span>);</span><br><span class="line">        Object result =  method.invoke(<span class="keyword">target</span>, args);</span><br><span class="line">        System.out.println(<span class="string">"do sth after...."</span>);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">    ProxyUtil(Object <span class="keyword">target</span>)&#123;</span><br><span class="line">        <span class="keyword">this</span>.<span class="keyword">target</span> = <span class="keyword">target</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function">Object <span class="title">getTarget</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">target</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">void</span> <span class="title">setTarget</span><span class="params">(Object <span class="keyword">target</span>)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.<span class="keyword">target</span> = <span class="keyword">target</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">import java.lang.reflect.Proxy;</span><br><span class="line">import net.aazj.pojo.User;</span><br><span class="line">public <span class="keyword">class</span> ProxyTest &#123;</span><br><span class="line">    public static void main(String<span class="literal">[]</span> args)&#123;</span><br><span class="line">        Object proxyedObject = <span class="keyword">new</span> <span class="constructor">UserServiceImpl()</span>;    <span class="comment">// 被代理的对象</span></span><br><span class="line">        ProxyUtil proxyUtils = <span class="keyword">new</span> <span class="constructor">ProxyUtil(<span class="params">proxyedObject</span>)</span>;</span><br><span class="line">        <span class="comment">// 生成代理对象，对被代理对象的这些接口进行代理：UserServiceImpl.class.getInterfaces()</span></span><br><span class="line">        UserService proxyObject = (UserService) <span class="module-access"><span class="module"><span class="identifier">Proxy</span>.</span></span><span class="keyword">new</span><span class="constructor">ProxyInstance(Thread.<span class="params">currentThread</span>()</span>.get<span class="constructor">ContextClassLoader()</span>, </span><br><span class="line">                    <span class="module-access"><span class="module"><span class="identifier">UserServiceImpl</span>.</span></span><span class="keyword">class</span>.get<span class="constructor">Interfaces()</span>, proxyUtils);</span><br><span class="line">        proxyObject.get<span class="constructor">User(1)</span>;</span><br><span class="line">        proxyObject.add<span class="constructor">User(<span class="params">new</span> User()</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行结果：</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"><span class="keyword">do</span> sth before<span class="built_in">..</span><span class="built_in">..</span></span><br><span class="line">getUser <span class="keyword">from</span> database.</span><br><span class="line"><span class="keyword">do</span> sth after<span class="built_in">..</span><span class="built_in">..</span></span><br><span class="line"><span class="keyword">do</span> sth before<span class="built_in">..</span><span class="built_in">..</span></span><br><span class="line"><span class="builtin-name">add</span><span class="built_in"> user </span>into database.</span><br><span class="line"><span class="keyword">do</span> sth after<span class="built_in">..</span><span class="built_in">..</span></span><br><span class="line">我们看到在 UserService接口中的方法 addUser 和 getUser方法的前面插入了我们自己的代码。这就是JDK动态代理实现AOP的原理。</span><br><span class="line"></span><br><span class="line">我们看到该方式有一个要求， 被代理的对象必须实现接口，而且只有接口中的方法才能被代理 。</span><br></pre></td></tr></table></figure>
+<p>2）CGLIB （code generate libary）</p>
+<p>字节码生成技术实现AOP，其实就是继承被代理对象，然后Override需要被代理的方法，在覆盖该方法时，自然是可以插入我们自己的代码的。</p>
+<p>因为需要Override被代理对象的方法，所以自然CGLIB技术实现AOP时，就 必须要求需要被代理的方法不能是final方法，因为final方法不能被子类覆盖 。</p>
+<p>我们使用CGLIB实现上面的例子：</p>
+<figure class="highlight aspectj"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> net.aazj.aop;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Method;</span><br><span class="line"><span class="keyword">import</span> net.sf.cglib.proxy.Enhancer;</span><br><span class="line"><span class="keyword">import</span> net.sf.cglib.proxy.MethodInterceptor;</span><br><span class="line"><span class="keyword">import</span> net.sf.cglib.proxy.MethodProxy;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CGProxy</span> <span class="keyword">implements</span> <span class="title">MethodInterceptor</span></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Object <span class="keyword">target</span>;    <span class="comment">// 被代理对象</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CGProxy</span><span class="params">(Object <span class="keyword">target</span>)</span></span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.<span class="keyword">target</span> = <span class="keyword">target</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function">Object <span class="title">intercept</span><span class="params">(Object arg0, Method arg1, Object[] arg2, MethodProxy proxy)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"do sth before...."</span>);</span><br><span class="line">        Object result = proxy.invokeSuper(arg0, arg2);</span><br><span class="line">        System.out.println(<span class="string">"do sth after...."</span>);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function">Object <span class="title">getProxyObject</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        Enhancer enhancer = <span class="keyword">new</span> Enhancer();</span><br><span class="line">        enhancer.setSuperclass(<span class="keyword">this</span>.<span class="keyword">target</span>.getClass());    <span class="comment">// 设置父类</span></span><br><span class="line">        <span class="comment">// 设置回调</span></span><br><span class="line">        enhancer.setCallback(<span class="keyword">this</span>);    <span class="comment">// 在调用父类方法时，回调 this.intercept()</span></span><br><span class="line">        <span class="comment">// 创建代理对象</span></span><br><span class="line">        <span class="function"><span class="keyword">return</span> enhancer.<span class="title">create</span><span class="params">()</span></span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight haxe"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CGProxyTest</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> void main(<span class="keyword">String</span>[] args)&#123;</span><br><span class="line">        Object proxyedObject = <span class="keyword">new</span> <span class="type">UserServiceImpl</span>();    <span class="comment">// 被代理的对象</span></span><br><span class="line">        CGProxy cgProxy = <span class="keyword">new</span> <span class="type">CGProxy</span>(proxyedObject);</span><br><span class="line">        UserService proxyObject = (UserService) cgProxy.getProxyObject();</span><br><span class="line">        proxyObject.getUser(<span class="number">1</span>);</span><br><span class="line">        proxyObject.addUser(<span class="keyword">new</span> <span class="type">User</span>());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出结果：</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line"><span class="keyword">do</span> sth before<span class="built_in">..</span><span class="built_in">..</span></span><br><span class="line">getUser <span class="keyword">from</span> database.</span><br><span class="line"><span class="keyword">do</span> sth after<span class="built_in">..</span><span class="built_in">..</span></span><br><span class="line"><span class="keyword">do</span> sth before<span class="built_in">..</span><span class="built_in">..</span></span><br><span class="line"><span class="builtin-name">add</span><span class="built_in"> user </span>into database.</span><br><span class="line"><span class="keyword">do</span> sth after<span class="built_in">..</span><span class="built_in">..</span></span><br><span class="line">我们看到达到了同样的效果。</span><br><span class="line">它的原理是生成一个父类 enhancer.setSuperclass( this.target.getClass()) 的子类 enhancer.create() ，然后对父类的方法进行拦截enhancer.setCallback( this) . </span><br><span class="line">对父类的方法进行覆盖，所以父类方法不能是final的。</span><br></pre></td></tr></table></figure>
+<p>3） 接下来我们看下spring实现AOP的相关源码：</p>
+<figure class="highlight arduino"><table><tr><td class="code"><pre><span class="line">@SuppressWarnings(<span class="string">"serial"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DefaultAopProxyFactory</span> <span class="title">implements</span> <span class="title">AopProxyFactory</span>, <span class="title">Serializable</span> &#123;</span></span><br><span class="line">    @Override</span><br><span class="line">    <span class="function"><span class="keyword">public</span> AopProxy <span class="title">createAopProxy</span><span class="params">(AdvisedSupport <span class="built_in">config</span>)</span> throws AopConfigException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">config</span>.isOptimize() || <span class="built_in">config</span>.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(<span class="built_in">config</span>)) &#123;</span><br><span class="line">            Class&lt;?&gt; targetClass = <span class="built_in">config</span>.getTargetClass();</span><br><span class="line">            <span class="keyword">if</span> (targetClass == null) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> AopConfigException(<span class="string">"TargetSource cannot determine target class: "</span> +</span><br><span class="line">                        <span class="string">"Either an interface or a target is required for proxy creation."</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (targetClass.isInterface()) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> JdkDynamicAopProxy(<span class="built_in">config</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> ObjenesisCglibAopProxy(<span class="built_in">config</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> JdkDynamicAopProxy(<span class="built_in">config</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>从上面的源码我们可以看到：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (targetClass.is<span class="constructor">Interface()</span>) &#123;</span><br><span class="line">                return <span class="keyword">new</span> <span class="constructor">JdkDynamicAopProxy(<span class="params">config</span>)</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            return <span class="keyword">new</span> <span class="constructor">ObjenesisCglibAopProxy(<span class="params">config</span>)</span>;</span><br></pre></td></tr></table></figure>
+<p>如果被代理对象实现了接口，那么就使用JDK的动态代理技术，反之则使用CGLIB来实现AOP，所以 Spring默认是使用JDK的动态代理技术实现AOP的 。</p>
+<p>JdkDynamicAopProxy的实现其实很简单：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">final <span class="keyword">class</span> JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializable &#123;    </span><br><span class="line">@Override</span><br><span class="line">public Object get<span class="constructor">Proxy(ClassLoader <span class="params">classLoader</span>)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (logger.is<span class="constructor">DebugEnabled()</span>) &#123;</span><br><span class="line">        logger.debug(<span class="string">"Creating JDK dynamic proxy: target source is "</span> + this.advised.get<span class="constructor">TargetSource()</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    Class&lt;?&gt;<span class="literal">[]</span> proxiedInterfaces = <span class="module-access"><span class="module"><span class="identifier">AopProxyUtils</span>.</span></span>complete<span class="constructor">ProxiedInterfaces(<span class="params">this</span>.<span class="params">advised</span>)</span>;</span><br><span class="line">    find<span class="constructor">DefinedEqualsAndHashCodeMethods(<span class="params">proxiedInterfaces</span>)</span>;</span><br><span class="line">    return <span class="module-access"><span class="module"><span class="identifier">Proxy</span>.</span></span><span class="keyword">new</span><span class="constructor">ProxyInstance(<span class="params">classLoader</span>, <span class="params">proxiedInterfaces</span>, <span class="params">this</span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>\3. Spring AOP的配置</p>
+<p>Spring中AOP的配置一般有两种方法，一种是使用 <a href="aop:config">aop:config</a> 标签在xml中进行配置，一种是使用注解以及@Aspect风格的配置。</p>
+<p>1） 基于<a href="aop:config">aop:config</a>的AOP配置</p>
+<p>下面是一个典型的事务AOP的配置：</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><span class="line">&lt;tx:advice id="transactionAdvice" <span class="keyword">transaction</span>-manager="transactionManager"?&gt;</span><br><span class="line">    &lt;tx:attributes &gt;</span><br><span class="line">        &lt;tx:<span class="keyword">method</span> <span class="type">name</span>="add*" propagation="REQUIRED" /&gt;</span><br><span class="line">        &lt;tx:<span class="keyword">method</span> <span class="type">name</span>="append*" propagation="REQUIRED" /&gt;</span><br><span class="line">        &lt;tx:<span class="keyword">method</span> <span class="type">name</span>="insert*" propagation="REQUIRED" /&gt;</span><br><span class="line">        &lt;tx:<span class="keyword">method</span> <span class="type">name</span>="save*" propagation="REQUIRED" /&gt;</span><br><span class="line">        &lt;tx:<span class="keyword">method</span> <span class="type">name</span>="update*" propagation="REQUIRED" /&gt;</span><br><span class="line">        &lt;tx:<span class="keyword">method</span> <span class="type">name</span>="get*" propagation="SUPPORTS" /&gt;</span><br><span class="line">        &lt;tx:<span class="keyword">method</span> <span class="type">name</span>="find*" propagation="SUPPORTS" /&gt;</span><br><span class="line">        &lt;tx:<span class="keyword">method</span> <span class="type">name</span>="load*" propagation="SUPPORTS" /&gt;</span><br><span class="line">        &lt;tx:<span class="keyword">method</span> <span class="type">name</span>="search*" propagation="SUPPORTS" /&gt;</span><br><span class="line">        &lt;tx:<span class="keyword">method</span> <span class="type">name</span>="*" propagation="SUPPORTS" /&gt;</span><br><span class="line">    &lt;/tx:attributes&gt;</span><br><span class="line">&lt;/tx:advice&gt;</span><br><span class="line">&lt;aop:config&gt;</span><br><span class="line">    &lt;aop:pointcut id="transactionPointcut" expression="execution(* net.aazj.service..*Impl.*(..))" /&gt;</span><br><span class="line">    &lt;aop:advisor pointcut-<span class="keyword">ref</span>="transactionPointcut" advice-<span class="keyword">ref</span>="transactionAdvice" /&gt;</span><br><span class="line">&lt;/aop:config&gt;</span><br></pre></td></tr></table></figure>
+<p>再看一个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&lt;bean id=<span class="string">"aspectBean"</span> <span class="class"><span class="keyword">class</span></span>=<span class="string">"net.aazj.aop.DataSourceInterceptor"</span>/&gt;</span><br><span class="line">&lt;aop:config&gt;</span><br><span class="line">    &lt;aop:aspect id=<span class="string">"dataSourceAspect"</span> ref=<span class="string">"aspectBean"</span>&gt;</span><br><span class="line">        &lt;aop:pointcut id=<span class="string">"dataSourcePoint"</span> expression=<span class="string">"execution(public * net.aazj.service..*.getUser(..))"</span> /&gt;</span><br><span class="line">        &lt;aop:pointcut expression=<span class="string">""</span> id=<span class="string">""</span>/&gt;</span><br><span class="line">        &lt;aop:before method=<span class="string">"before"</span> pointcut-ref=<span class="string">"dataSourcePoint"</span>/&gt;</span><br><span class="line">        &lt;aop:after method=<span class="string">""</span>/&gt;</span><br><span class="line">        &lt;aop:around method=<span class="string">""</span>/&gt;</span><br><span class="line">    &lt;<span class="regexp">/aop:aspect&gt;</span></span><br><span class="line"><span class="regexp">    &lt;aop:aspect&gt;&lt;/</span>aop:aspect&gt;</span><br><span class="line">&lt;<span class="regexp">/aop:config&gt;</span></span><br></pre></td></tr></table></figure>
+<p><a href="aop:aspect">aop:aspect</a> 配置一个切面；</p>
+<p><a href="aop:pointcut">aop:pointcut</a>配置一个切点，基于切点表达式；</p>
+<p><a href="aop:before">aop:before</a>,<a href="aop:after">aop:after</a>,<a href="aop:around">aop:around</a>是定义不同类型的advise. a</p>
+<p>spectBean 是切面的处理bean：</p>
+<figure class="highlight cpp"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DataSourceInterceptor</span> &#123;</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">before</span><span class="params">(JoinPoint jp)</span> </span>&#123;</span><br><span class="line">        DataSourceTypeManager.<span class="built_in">set</span>(DataSources.SLAVE);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>基于注解和@Aspect风格的AOP配置</li>
+</ol>
+<p>我们以事务配置为例：首先我们启用基于注解的事务配置</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 使用annotation定义事务 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">tx:annotation-driven</span> <span class="attr">transaction-manager</span>=<span class="string">"transactionManager"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<p>然后扫描Service包：</p>
+<figure class="highlight vhdl"><table><tr><td class="code"><pre><span class="line">&lt;<span class="keyword">context</span>:<span class="keyword">component</span>-scan base-<span class="keyword">package</span>=<span class="string">"net.aazj.service,net.aazj.aop"</span> /&gt;</span><br></pre></td></tr></table></figure>
+<p>最后在service上进行注解：</p>
+<figure class="highlight reasonml"><table><tr><td class="code"><pre><span class="line">@<span class="constructor">Service(<span class="string">"userService"</span>)</span></span><br><span class="line">@Transactional</span><br><span class="line">public <span class="keyword">class</span> UserServiceImpl implements UserService&#123;</span><br><span class="line">    @Autowired</span><br><span class="line">    <span class="keyword">private</span> UserMapper userMapper;</span><br><span class="line">    @Transactional (readOnly=<span class="literal">true</span>)</span><br><span class="line">    public User get<span class="constructor">User(<span class="params">int</span> <span class="params">userId</span>)</span> &#123;</span><br><span class="line">        <span class="module-access"><span class="module"><span class="identifier">System</span>.</span></span>out.println(<span class="string">"in UserServiceImpl getUser"</span>);</span><br><span class="line">        <span class="module-access"><span class="module"><span class="identifier">System</span>.</span></span>out.println(<span class="module-access"><span class="module"><span class="identifier">DataSourceTypeManager</span>.</span></span>get<span class="literal">()</span>);</span><br><span class="line">        return userMapper.get<span class="constructor">User(<span class="params">userId</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    public void add<span class="constructor">User(String <span class="params">username</span>)</span>&#123;</span><br><span class="line">        userMapper.add<span class="constructor">User(<span class="params">username</span>)</span>;</span><br><span class="line"><span class="comment">//        int i = 1/0;    // 测试事物的回滚</span></span><br><span class="line">    &#125;</span><br><span class="line">    public void delete<span class="constructor">User(<span class="params">int</span> <span class="params">id</span>)</span>&#123;</span><br><span class="line">        userMapper.delete<span class="constructor">ByPrimaryKey(<span class="params">id</span>)</span>;</span><br><span class="line"><span class="comment">//        int i = 1/0;    // 测试事物的回滚</span></span><br><span class="line">    &#125;</span><br><span class="line">    @Transactional (rollbackFor = <span class="module-access"><span class="module"><span class="identifier">BaseBusinessException</span>.</span></span><span class="keyword">class</span>)</span><br><span class="line">    public void add<span class="constructor">AndDeleteUser(String <span class="params">username</span>, <span class="params">int</span> <span class="params">id</span>)</span> throws BaseBusinessException&#123;</span><br><span class="line">        userMapper.add<span class="constructor">User(<span class="params">username</span>)</span>;</span><br><span class="line">        this.m1<span class="literal">()</span>;</span><br><span class="line">        userMapper.delete<span class="constructor">ByPrimaryKey(<span class="params">id</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> void m1<span class="literal">()</span> throws BaseBusinessException &#123;</span><br><span class="line">        throw <span class="keyword">new</span> <span class="constructor">BaseBusinessException(<span class="string">"xxx"</span>)</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    public <span class="built_in">int</span> insert<span class="constructor">User(User <span class="params">user</span>)</span> &#123;</span><br><span class="line">        return this.userMapper.insert(user);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>搞定。这种事务配置方式，不需要我们书写pointcut表达式，而是我们在需要事务的类上进行注解。但是如果我们自己来写切面的代码时，还是要写pointcut表达式。下面看一个例子(自己写切面逻辑)：</p>
+<p>首先去扫描 @Aspect 注解定义的 切面：</p>
+<figure class="highlight vhdl"><table><tr><td class="code"><pre><span class="line">&lt;<span class="keyword">context</span>:<span class="keyword">component</span>-scan base-<span class="keyword">package</span>=<span class="string">"net.aazj.aop"</span> /&gt;</span><br></pre></td></tr></table></figure>
+<p>切面代码：</p>
+<figure class="highlight crystal"><table><tr><td class="code"><pre><span class="line">import org.aspectj.lang.JoinPoint;</span><br><span class="line">import org.aspectj.lang.<span class="keyword">annotation</span>.<span class="title">Aspect</span>;</span><br><span class="line">import org.aspectj.lang.<span class="keyword">annotation</span>.<span class="title">Before</span>;</span><br><span class="line">import org.aspectj.lang.<span class="keyword">annotation</span>.<span class="title">Pointcut</span>;</span><br><span class="line">import org.springframework.core.<span class="keyword">annotation</span>.<span class="title">Order</span>;</span><br><span class="line">import org.springframework.stereotype.Component;</span><br><span class="line">@Aspect    /<span class="regexp">/ for aop</span></span><br><span class="line"><span class="regexp">@Component /</span><span class="regexp">/ for auto scan</span></span><br><span class="line"><span class="regexp">@Order(0)  /</span><span class="regexp">/ execute before @Transactional</span></span><br><span class="line"><span class="regexp">public class DataSourceInterceptor &#123;</span></span><br><span class="line"><span class="regexp">    @Pointcut("execution(public * net.aazj.service..*.get*(..))")</span></span><br><span class="line"><span class="regexp">    public void dataSourceSlave()&#123;&#125;;</span></span><br><span class="line"><span class="regexp">    @Before("dataSourceSlave()")</span></span><br><span class="line"><span class="regexp">    public void before(JoinPoint jp) &#123;</span></span><br><span class="line"><span class="regexp">        DataSourceTypeManager.set(DataSources.SLAVE);</span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>我们使用到了 @Aspect 来定义一个切面；</p>
+<p>@Component是配合<a href="context:component-scan/">context:component-scan/</a>，不然扫描不到；</p>
+<p>@Order定义了该切面切入的顺序 ，因为在同一个切点，可能同时存在多个切面，那么在这多个切面之间就存在一个执行顺序的问题。</p>
+<p>该例子是一个切换数据源的切面，那么他应该在 事务处理 切面之前执行，所以我们使用 @Order(0) 来确保先切换数据源，然后加入事务处理。</p>
+<p>@Order的参数越小，优先级越高，默认的优先级最低：</p>
+<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Annotation that defines ordering. The value is optional, and represents order value</span></span><br><span class="line"><span class="comment"> * as defined in the &#123;@link Ordered&#125; interface. Lower values have higher priority.</span></span><br><span class="line"><span class="comment"> * The default value is &#123;@code Ordered.LOWEST_PRECEDENCE&#125;, indicating</span></span><br><span class="line"><span class="comment"> * lowest priority (losing to any other specified order value).</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="variable">@Retention</span>(RetentionPolicy.RUNTIME)</span><br><span class="line"><span class="variable">@Target</span>(&#123;ElementType.TYPE, ElementType.METHOD, ElementType.FIELD&#125;)</span><br><span class="line">public <span class="variable">@interface</span> Order &#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * The order value. Default is &#123;@link Ordered#LOWEST_PRECEDENCE&#125;.</span></span><br><span class="line"><span class="comment">     * @see Ordered#getOrder()</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="selector-tag">int</span> <span class="selector-tag">value</span>() <span class="selector-tag">default</span> <span class="selector-tag">Ordered</span><span class="selector-class">.LOWEST_PRECEDENCE</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3） 切点表达式(pointcut)</p>
+<p>上面我们看到，无论是 <a href="aop:config">aop:config</a> 风格的配置，还是 @Aspect 风格的配置，切点表达式都是重点。都是我们必须掌握的。</p>
+<p>1&gt;pointcut语法形式(execution)：</p>
+<figure class="highlight coq"><table><tr><td class="code"><pre><span class="line">execution(modifiers-<span class="built_in">pattern</span>? ret-type-<span class="built_in">pattern</span> declaring-type-<span class="built_in">pattern</span>? name-<span class="built_in">pattern</span>(param-<span class="built_in">pattern</span>)throws-<span class="built_in">pattern</span>?)</span><br></pre></td></tr></table></figure>
+<p>带有 ? 号的部分是可选的，所以可以简化成： ret-type-pattern name-pattern(param_pattern) 返回类型，方法名称，参数三部分来匹配 。</p>
+<p>配置起来其实也很简单： * 表示任意返回类型，任意方法名，任意一个参数类型； … 连续两个点表示0个或多个包路径，还有0个或多个参数 。就是这么简单。看下例子：</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">execution</span>(* <span class="selector-tag">net</span><span class="selector-class">.aazj</span><span class="selector-class">.service</span>..*<span class="selector-class">.get</span>*(..)) ：表示<span class="selector-tag">net</span><span class="selector-class">.aazj</span><span class="selector-class">.service</span>包或者子包下的以<span class="selector-tag">get</span>开头的方法，参数可以是0个或者多个（参数不限）；</span><br><span class="line"><span class="selector-tag">execution</span>(* <span class="selector-tag">net</span><span class="selector-class">.aazj</span><span class="selector-class">.service</span><span class="selector-class">.AccountService</span>.*(..)): 表示<span class="selector-tag">AccountService</span>接口下的任何方法，参数不限；</span><br><span class="line">注意这里，将类名和包路径是一起来处理的，并没有进行区分，因为类名也是包路径的一部分。</span><br><span class="line">参数<span class="selector-tag">param-</span> <span class="selector-tag">pattern</span> 部分比较复杂： () 表示没有参数，(..)参数不限，(*,<span class="selector-tag">String</span>) 第一个参数不限类型，第二参数为<span class="selector-tag">String</span> .</span><br></pre></td></tr></table></figure>
+<p>2&gt;within() 语法:</p>
+<p>within()只能指定(限定)包路径(类名也可以看做是包路径)，表示某个包下或者子报下的所有方法：</p>
+<figure class="highlight stylus"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="title">within</span><span class="params">(net.aazj.service.*)</span></span>， within(net<span class="selector-class">.aazj</span><span class="selector-class">.service</span>..*)，within(net<span class="selector-class">.aazj</span><span class="selector-class">.service</span><span class="selector-class">.UserServiceImpl</span>.*)</span><br></pre></td></tr></table></figure>
+<p>3&gt;this() 与 target():</p>
+<p>this是指代理对象，target是指被代理对象(目标对象)。所以 this() 和 target() 分别限定 代理对象的类型和被代理对象的类型：</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">this</span>(<span class="selector-tag">net</span><span class="selector-class">.aazj</span><span class="selector-class">.service</span><span class="selector-class">.UserService</span>): 实现了<span class="selector-tag">UserService</span>的代理对象(中的所有方法)； </span><br><span class="line"></span><br><span class="line"><span class="selector-tag">target</span> (<span class="selector-tag">net</span><span class="selector-class">.aazj</span><span class="selector-class">.service</span><span class="selector-class">.UserService</span>): 被代理对象 实现了<span class="selector-tag">UserService</span>(中的所有方法)；</span><br></pre></td></tr></table></figure>
+<p>4&gt; <em>args():</em></p>
+<p>限定方法的参数的类型：</p>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">args</span>(<span class="selector-tag">net</span><span class="selector-class">.aazj</span><span class="selector-class">.pojo</span><span class="selector-class">.User</span>): 参数为<span class="selector-tag">User</span>类型的方法。</span><br></pre></td></tr></table></figure>
+<figure class="highlight crystal"><table><tr><td class="code"><pre><span class="line"><span class="number">5</span>&gt;@target(), @within(), @<span class="keyword">annotation</span>(), @<span class="title">args</span>():</span><br><span class="line"></span><br><span class="line">这些语法形式都是针对注解的 ，比如 带有某个注解的 类 ， 带有某个注解的 方法， 参数的类型 带有某个注解 ：</span><br><span class="line">@within(org.springframework.transaction.<span class="keyword">annotation</span>.<span class="title">Transactional</span>) </span><br><span class="line">@target(org.springframework.transaction.<span class="keyword">annotation</span>.<span class="title">Transactional</span>)</span><br></pre></td></tr></table></figure>
+<p>两者都是指被代理对象 类 上有 @Transactional 注解的(类的所有方法)，（两者似乎没有区别？？？）</p>
+<figure class="highlight less"><table><tr><td class="code"><pre><span class="line"><span class="variable">@annotation</span>(org.springframework.transaction.annotation.Transactional)：  方法 带有 <span class="variable">@Transactional</span> 注解的所有方法 </span><br><span class="line"></span><br><span class="line"><span class="variable">@args</span>(org.springframework.transaction.annotation.Transactional)： 参数的类型 带有 <span class="variable">@Transactional</span> 注解 的所有方法</span><br></pre></td></tr></table></figure>
+<p>6&gt;bean(): 指定某个bean的名称</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line"><span class="attribute">bean(userService)</span>: bean的id为 "userService" 的所有方法;</span><br><span class="line"></span><br><span class="line"><span class="attribute">bean(*Service)</span>: bean的id为 "Service"字符串结尾的所有方法;</span><br><span class="line"></span><br><span class="line">另外注意上面这些表达式是可以利用 ||, &amp;&amp;, ! 进行自由组合的。比如：execution(public * net.aazj.service..*.getUser(..)) &amp;&amp; args(Integer,..)</span><br></pre></td></tr></table></figure>
+<p>\4. 向注解处理方法传递参数</p>
+<p>有时我们在写注解处理方法时，需要访问被拦截的方法的参数。此时我们可以使用 args() 来传递参数，下面看一个例子：</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><span class="line">@Aspect</span><br><span class="line">@Component // <span class="keyword">for</span> auto scan</span><br><span class="line">//@<span class="keyword">Order</span>(<span class="number">2</span>)</span><br><span class="line"><span class="built_in">public</span> <span class="keyword">class</span> LogInterceptor &#123;    </span><br><span class="line">    @Pointcut("execution(public * net.aazj.service..*.getUser(..))")</span><br><span class="line">    <span class="built_in">public</span> <span class="type">void</span> myMethod()&#123;&#125;;</span><br><span class="line">    @<span class="keyword">Before</span>("myMethod()")</span><br><span class="line">    <span class="built_in">public</span> <span class="type">void</span> <span class="keyword">before</span>() &#123;</span><br><span class="line">        <span class="keyword">System</span>.<span class="keyword">out</span>.println("method start");</span><br><span class="line">    &#125; </span><br><span class="line">    @<span class="keyword">After</span>("myMethod()")</span><br><span class="line">    <span class="built_in">public</span> <span class="type">void</span> <span class="keyword">after</span>() &#123;</span><br><span class="line">        <span class="keyword">System</span>.<span class="keyword">out</span>.println("method after");</span><br><span class="line">    &#125; </span><br><span class="line">    @AfterReturning("execution(public * net.aazj.mapper..*.*(..))")</span><br><span class="line">    <span class="built_in">public</span> <span class="type">void</span> AfterReturning() &#123;</span><br><span class="line">        <span class="keyword">System</span>.<span class="keyword">out</span>.println("method AfterReturning");</span><br><span class="line">    &#125; </span><br><span class="line">    @AfterThrowing("execution(public * net.aazj.mapper..*.*(..))")</span><br><span class="line">//  @Around("execution(public * net.aazj.mapper..*.*(..))")</span><br><span class="line">    <span class="built_in">public</span> <span class="type">void</span> AfterThrowing() &#123;</span><br><span class="line">        <span class="keyword">System</span>.<span class="keyword">out</span>.println("method AfterThrowing");</span><br><span class="line">    &#125; </span><br><span class="line">    @Around("execution(public * net.aazj.mapper..*.*(..))")</span><br><span class="line">    <span class="built_in">public</span> <span class="keyword">Object</span> Around(ProceedingJoinPoint jp) throws Throwable &#123;</span><br><span class="line">        <span class="keyword">System</span>.<span class="keyword">out</span>.println("method Around");</span><br><span class="line">        SourceLocation sl = jp.getSourceLocation();</span><br><span class="line">        <span class="keyword">Object</span> ret = jp.proceed();</span><br><span class="line">        <span class="keyword">System</span>.<span class="keyword">out</span>.println(jp.getTarget());</span><br><span class="line">        <span class="keyword">return</span> ret;</span><br><span class="line">    &#125; </span><br><span class="line">    @<span class="keyword">Before</span>("execution(public * net.aazj.service..*.getUser(..)) &amp;&amp; args(userId,..)")</span><br><span class="line">    <span class="built_in">public</span> <span class="type">void</span> before3(<span class="type">int</span> userId) &#123;</span><br><span class="line">        <span class="keyword">System</span>.<span class="keyword">out</span>.println("userId-----" + userId);</span><br><span class="line">    &#125;  </span><br><span class="line">    @<span class="keyword">Before</span>("myMethod()")</span><br><span class="line">    <span class="built_in">public</span> <span class="type">void</span> before2(JoinPoint jp) &#123;</span><br><span class="line">        <span class="keyword">Object</span>[] args = jp.getArgs();</span><br><span class="line">        <span class="keyword">System</span>.<span class="keyword">out</span>.println("userId11111: " + (<span class="type">Integer</span>)args[<span class="number">0</span>]);</span><br><span class="line">        <span class="keyword">System</span>.<span class="keyword">out</span>.println(jp.getTarget());</span><br><span class="line">        <span class="keyword">System</span>.<span class="keyword">out</span>.println(jp.getThis());</span><br><span class="line">        <span class="keyword">System</span>.<span class="keyword">out</span>.println(jp.getSignature());</span><br><span class="line">        <span class="keyword">System</span>.<span class="keyword">out</span>.println("method start");</span><br><span class="line">    &#125;    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>方法：</p>
+<figure class="highlight pgsql"><table><tr><td class="code"><pre><span class="line">@<span class="keyword">Before</span>("execution(public * net.aazj.service..*.getUser(..)) &amp;&amp; args(userId,..)")</span><br><span class="line">    <span class="built_in">public</span> <span class="type">void</span> before3(<span class="type">int</span> userId) &#123;</span><br><span class="line">        <span class="keyword">System</span>.<span class="keyword">out</span>.println("userId-----" + userId);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>它会拦截 net.aazj.service 包下或者子包下的getUser方法，并且该方法的第一个参数必须是int型的， 那么使用切点表达式args(userId,…) 就可以使我们在切面中的处理方法before3中可以访问这个参数。</p>
+<p>before2方法也让我们知道也可以通过 JoinPoint 参数来获得被拦截方法的参数数组。 JoinPoint 是每一个切面处理方法都具有的参数， @Around 类型的具有的参数类型为ProceedingJoinPoint。通过 JoinPoint或者 ProceedingJoinPoint 参数可以访问到被拦截对象的一些信息(参见上面的 before2 方法)。</p>
+<ol>
+<li>
+<p>请简述 Spring 框架的优点。</p>
+<blockquote>
+<p>**非侵入式设计:**Spring是一种非侵入式（non-invasive）框架，它可以使应用程序代码对框架的依赖最小化。</p>
+</blockquote>
+<blockquote>
+<p>**方便解耦、简化开发:**Spring就是一个大工厂，可以将所有对象的创建和依赖关系的维护工作都交给Spring容器的管理，大大的降低了组件之间的耦合性。</p>
+</blockquote>
+<blockquote>
+<p>**支持AOP:**Spring提供了对AOP的支持，它允许将一些通用任务，如安全、事物、日志等进行集中式处理，从而提高了程序的复用性。</p>
+</blockquote>
+<blockquote>
+<p><strong>支持声明式事务处理</strong></p>
+<p>只需要通过配置就可以完成对事物的管理，而无须手动编程。</p>
+</blockquote>
+<blockquote>
+<p><strong>方便程序的测试</strong></p>
+<p>Spring提供了对Junit4的支持，可以通过注解方便的测试Spring程序。</p>
+</blockquote>
+<blockquote>
+<p><strong>方便集成各种优秀框架</strong></p>
+<p>Spring不排斥各种优秀的开源框架，其内部提供了对各种优秀框架（如Struts、Hibernate、MyBatis、Quartz等）的直接支持。</p>
+</blockquote>
+<blockquote>
+<p><strong>降低Jave EE API的使用难度。</strong></p>
+<p>Spring对Java EE开发中非常难用的一些API（如JDBC、JavaMail等），都提供了封装，使这些API应用难度大大降低。</p>
+</blockquote>
+</li>
+<li>
+<p>请简述什么是 Spring 的 loC 和DI。</p>
+<blockquote>
+<h4 id="ioc控制反转"><a class="markdownIt-Anchor" href="#ioc控制反转"></a> IOC（控制反转）</h4>
+<p>传统的Java开发过程中，当需要一个对象的时候，我们需要自己new或者getInstance等直接或间接调用构造方法创建一个对象；而在Spring容器中，Spring容器利用 工厂模式(BeanFactory)为我们创建了所需要的对象，使用时无须自己创建，直接调用Spring为我们创建的对象即可，这就是控制反转的思想。</p>
+<p><strong>优点</strong>：简化了我们对对象的管理，交给了Spring管理；程序员不用再自己创建对象，需要时直接从Spring中取。由主动创建对象变成了被动接收对象，控制权反转，减轻了程序员的代码量，提高了开发效率。打个比方：IOC就像现在得订餐APP，以前我们吃饭需要自己去做，去New一顿饭出来；现在我们有了订餐APP(Spring)，我们只需要登录这个APP，在APP订餐页面<code>spring.xml</code>(Spring配置文件)填写你想吃的饭(也就是Bean对象)，然后就可以预定你要吃的饭，想要猪头肉就会给你送猪头肉，想要红烧肉就会送红烧肉；各种菜就像是Property，这样我们坐在家中就可以吃到饭了，不用自己再动手去做了。</p>
+</blockquote>
+<blockquote>
+<p><strong>DI(依赖注入)</strong></p>
+<p>Spring为我们提供了三种注入方式：<a href="https://www.cnblogs.com/xiaoxi/p/5865330.html"><strong>Setter注入</strong>、<strong>构造方法注入</strong>、<strong>接口注入</strong></a></p>
+<p>Spring使用JavaBean对象的Set方法或者带参数的构造方法为我们创建所需要的对象时将其属性自动设置为所需要的值的过程就是依赖注入的思想。</p>
+<p><strong>优点</strong>：有了Spring容器，当我们想要创建一个Service时，就可以直接从Spring容器中拿；或者想在Service中调用Dao也不需要在Service里创建，因为Spring会从容器中取出Dao，并注入到Service里，也就是依赖注入。</p>
+</blockquote>
+<blockquote>
+<h4 id="aop面向切面编程"><a class="markdownIt-Anchor" href="#aop面向切面编程"></a> AOP（面向切面编程）</h4>
+<p>在面向对象编程(OOP)中，我们将事物纵向抽象成一个个的对象。而在面向切面编程中，我们将一个个对象某些类似的方面横向抽象成一个切面，对这个切面进行一些如：权限验证，事务管理，记录日志等公用操作处理的过程就是面向切面编程的思想。</p>
+</blockquote>
+</li>
+<li>
+<p>请简述 Bean 的生命周期。</p>
+</li>
+</ol>
+<blockquote>
+<ol>
+<li>实例化bean对象(通过构造方法或者工厂方法)</li>
+<li>设置对象属性(setter等)（依赖注入）</li>
+<li>如果Bean实现了BeanNameAware接口，工厂调用Bean的setBeanName()方法传递Bean的ID。（和下面的一条均属于检查Aware接口）</li>
+<li>如果Bean实现了BeanFactoryAware接口，工厂调用setBeanFactory()方法传入工厂自身</li>
+<li>将Bean实例传递给Bean的前置处理器的postProcessBeforeInitialization(Object bean, String beanname)方法</li>
+<li>调用Bean的初始化方法</li>
+<li>将Bean实例传递给Bean的后置处理器的postProcessAfterInitialization(Object bean, String beanname)方法</li>
+<li>使用Bean</li>
+<li>容器关闭之前，调用Bean的销毁方法</li>
+</ol>
+</blockquote>
+<ol start="4">
+<li>
+<p>请简述 Bean 的几种装配方式的基本用法。</p>
+<blockquote>
+<p><strong>1基于XML的装配</strong><br>
+基于XML的装配，Spring提供了两种装配方式：设值注入（Setter Injection）和构造注入（Constructor Injection）。<br>
+设值注入要求Bean必须满足一下要求：<br>
+（1）Bean类必须提供一个默认的无参构造方法；<br>
+（2）Bean类必须为需要注入的属性提供对应的setter方法；<br>
+设值注入时，需要Spring在配置文件中，需要使用元素的子元素来为每个属性注入值；<br>
+使用构造方法时，在配置文件里，需要使用元素的子元素来定义构造方法的参数，可以使用value属性（或者子元素）来设值该参数的值。</p>
+</blockquote>
+<figure class="highlight css"><table><tr><td class="code"><pre><span class="line">见第二章代码  <span class="selector-tag">beans5</span><span class="selector-class">.xml</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>2基于Annotation的装配</strong><br>
+在实际应用中如果有很多Bean时，还通过使用XML配置会导致臃肿，给后续的维护和升级带来一定的困难。Spring提供了对Annotation注解技术的全面支持，可以解决此困难。</p>
+</blockquote>
+<p>Spring常用注解如下：</p>
+<table>
+<thead>
+<tr>
+<th><strong>Component</strong></th>
+<th><strong>描述Spring中的Bean，但是它时一个泛化的概念，仅仅表示一个组件（Bean）并且可以作用在任何层次；</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Repository</td>
+<td>用于将数据访问层（DAO）层的类标识为Spring中的Bean</td>
+</tr>
+<tr>
+<td>Service</td>
+<td>作用在业务层（service层），用于将业务层的类标识为Spring中的Bean</td>
+</tr>
+<tr>
+<td>Controller</td>
+<td>作用在控制层（如Spring MVC 的 controller层），用于将控制层的类标识为Spring中的Bean</td>
+</tr>
+<tr>
+<td>Autowired</td>
+<td>用于对Bean的属性变量、属性setter方法及构造方法进行标注，配合对应的注解处理器完成Bean的自动配置工作</td>
+</tr>
+<tr>
+<td>Resourse</td>
+<td>作用与Autowired一样。Resourse两个重要的属性：name和type。Spring将name解析为Bean实例名称，type解析为Bean实例类型</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>3自动装配</strong><br>
+自动装配，就是将一个bean自动地注入到其他Bean的property中。<br>
+仿造如上示例二代码，在ServiceImpl.java和UserController.java中加入属性的Setter方法。</p>
+</blockquote>
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>JAVAEE</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>StringBean</title>
+    <url>/2020/03/03/StringBean/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>JAVAEE</category>
+      </categories>
+      <tags>
+        <tag>犯过的错误</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>jdk8新特性</title>
     <url>/2020/03/03/jdk8%E6%96%B0%E7%89%B9%E6%80%A7/</url>
     <content><![CDATA[<p>jdk1.8新特性主要:</p>
@@ -223,7 +474,7 @@
   <entry>
     <title>JAVA垃圾回收GC</title>
     <url>/2020/03/01/JAVA/</url>
-    <content><![CDATA[<p><img src="JAVA%E9%9D%A2%E8%AF%951/JAVA%E5%86%85%E5%AD%98.jpg" alt="JAVA内存机制" /></p>
+    <content><![CDATA[<p><img src="/.com/2020/03//JAVA%E5%86%85%E5%AD%98.jpg" alt></p>
 <h4 id="java内存机制"><a class="markdownIt-Anchor" href="#java内存机制"></a> JAVA内存机制</h4>
 <blockquote>
 <ul>
@@ -270,7 +521,7 @@
 </ol>
 </li>
 </ol>
-<h6 id=""><a class="markdownIt-Anchor" href="#"></a> </h6>
+<h6 id><a class="markdownIt-Anchor" href="#"></a> </h6>
 <p><strong>问题2   什么时候回收?</strong></p>
 <p>即使是被判断不可达的对象, 也要再进行筛选, 当对象没有覆盖finalize()方法, 或者finaize()方法已经被虚拟机调用过, 则没有必要执行;</p>
 <p>如果有必要执行:</p>
