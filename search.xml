@@ -1,6 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>jdk8新特性</title>
+    <url>/2020/03/03/jdk8%E6%96%B0%E7%89%B9%E6%80%A7/</url>
+    <content><![CDATA[<p>jdk1.8新特性主要:</p>
+<blockquote>
+<ul>
+<li><strong>Lambda表达式</strong></li>
+<li><strong>函数式接口</strong></li>
+<li><strong>方法引用和构造器调用</strong></li>
+<li><strong>Stream API</strong></li>
+<li><strong>接口中的默认方法和静态方法</strong></li>
+<li><strong>新时间日期API</strong></li>
+</ul>
+</blockquote>
+<h2 id="一-lambda表达式"><a class="markdownIt-Anchor" href="#一-lambda表达式"></a> 一   Lambda表达式</h2>
+<blockquote>
+<p>lambda表达式本质上是一段匿名内部类, 也可以是一段可以传递的代码</p>
+</blockquote>
+<p>lambda最直观的优点:  简洁代码</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//匿名内部类</span></span><br><span class="line">Comparator&lt;Integer&gt; cpt = <span class="keyword">new</span> Comparator&lt;Integer&gt;() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(Integer o1, Integer o2)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> Integer.compare(o1,o2);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">TreeSet&lt;Integer&gt; set = <span class="keyword">new</span> TreeSet&lt;&gt;(cpt);</span><br><span class="line"></span><br><span class="line">System.out.println(<span class="string">"========================="</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//使用lambda表达式</span></span><br><span class="line">Comparator&lt;Integer&gt; cpt2 = (x,y) -&gt; Integer.compare(x,y);</span><br><span class="line">TreeSet&lt;Integer&gt; set2 = <span class="keyword">new</span> TreeSet&lt;&gt;(cpt2);</span><br></pre></td></tr></table></figure>
+<p>​		这样一个场景，在商城浏览商品信息时，经常会有条件的进行筛选浏览，例如要选颜色为红色的、价格小于8000千的….</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 筛选颜色为红色</span></span><br><span class="line"><span class="function"><span class="keyword">public</span>  List&lt;Product&gt; <span class="title">filterProductByColor</span><span class="params">(List&lt;Product&gt; list)</span></span>&#123;</span><br><span class="line">    List&lt;Product&gt; prods = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">for</span> (Product product : list)&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="string">"红色"</span>.equals(product.getColor()))&#123;</span><br><span class="line">            prods.add(product);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> prods;</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 筛选价格小于8千的</span></span><br><span class="line"><span class="function"><span class="keyword">public</span>  List&lt;Product&gt; <span class="title">filterProductByPrice</span><span class="params">(List&lt;Product&gt; list)</span></span>&#123;</span><br><span class="line">    List&lt;Product&gt; prods = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">    <span class="keyword">for</span> (Product product : list)&#123;</span><br><span class="line">        <span class="keyword">if</span> (product.getPrice() &lt; <span class="number">8000</span>)&#123;</span><br><span class="line">            prods.add(product);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> prods;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>对这个场景进行优化</p>
+<p>**优化一: **使用设计模式</p>
+<p>定义一个MyPredicate接口</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">public<span class="built_in"> interface </span>MyPredicate &lt;T&gt; &#123;</span><br><span class="line">    boolean test(T t);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果要筛选颜色为红色的商品,定义一个颜色过滤类</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ColorPredicate</span> <span class="keyword">implements</span> <span class="title">MyPredicate</span> &lt;<span class="title">Product</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">     <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String RED = <span class="string">"红色"</span>;</span><br><span class="line"></span><br><span class="line">     <span class="meta">@Override</span></span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">test</span><span class="params">(Product product)</span> </span>&#123;</span><br><span class="line">         <span class="keyword">return</span> RED.equals(product.getColor());</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
+<p>定义过滤方法，将过滤接口当做参数传入，这样这个过滤方法就不用修改，在实际调用的时候将具体的实现类传入即可。</p>
+<figure class="highlight lasso"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="built_in">List</span>&lt;Product&gt; filterProductByPredicate(<span class="built_in">List</span>&lt;Product&gt; <span class="built_in">list</span>,MyPredicate&lt;Product&gt; mp)&#123;</span><br><span class="line">        <span class="built_in">List</span>&lt;Product&gt; prods = <span class="literal">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        for (Product prod : <span class="built_in">list</span>)&#123;</span><br><span class="line">            <span class="keyword">if</span> (mp.test(prod))&#123;</span><br><span class="line">                prods.add(prod);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> prods;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>例如，如果想要筛选价格小于8000的商品，那么新建一个价格过滤类既可</p>
+<figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="symbol">PricePredicate</span> <span class="symbol">implements</span> <span class="symbol">MyPredicate</span>&lt;<span class="symbol">Product</span>&gt; &#123;</span><br><span class="line">    @Override</span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">bool</span>ean test(Product product) &#123;</span><br><span class="line">        <span class="keyword">return</span> product.getPrice() &lt; <span class="number">8000</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样实现的话，每次变更需求都需要新建一个实现类，感觉还是有点繁琐，那么再来优化一下</p>
+<p>**优化二:**使用匿名内部类</p>
+<p>定义过滤方法:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> List&lt;Product&gt; <span class="title">filterProductByPredicate</span><span class="params">(List&lt;Product&gt; list,MyPredicate&lt;Product&gt; mp)</span></span>&#123;</span><br><span class="line">        List&lt;Product&gt; prods = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (Product prod : list)&#123;</span><br><span class="line">            <span class="keyword">if</span> (mp.test(prod))&#123;</span><br><span class="line">                prods.add(prod);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> prods;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>调用过滤方法时:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 按价格过滤</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test2</span><span class="params">()</span></span>&#123;</span><br><span class="line">    filterProductByPredicate(proList, <span class="keyword">new</span> MyPredicate&lt;Product&gt;() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">test</span><span class="params">(Product product)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> product.getPrice() &lt; <span class="number">8000</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"> <span class="comment">// 按颜色过滤</span></span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">test3</span><span class="params">()</span></span>&#123;</span><br><span class="line">     filterProductByPredicate(proList, <span class="keyword">new</span> MyPredicate&lt;Product&gt;() &#123;</span><br><span class="line">         <span class="meta">@Override</span></span><br><span class="line">         <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">test</span><span class="params">(Product product)</span> </span>&#123;</span><br><span class="line">             <span class="keyword">return</span> <span class="string">"红色"</span>.equals(product.getColor());</span><br><span class="line">         &#125;</span><br><span class="line">     &#125;);</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>使用匿名内部类, 就不需要每次都新建一个实现类, 直接在方法内部实现. 看到匿名内部类, 不禁想起了Lambda表达式.</p>
+<p>**优化三:**使用Lambda表达式</p>
+<p>定义过滤方法:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> List&lt;Product&gt; <span class="title">filterProductByPredicate</span><span class="params">(List&lt;Product&gt; list,MyPredicate&lt;Product&gt; mp)</span></span>&#123;</span><br><span class="line">        List&lt;Product&gt; prods = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (Product prod : list)&#123;</span><br><span class="line">            <span class="keyword">if</span> (mp.test(prod))&#123;</span><br><span class="line">                prods.add(prod);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> prods;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>使用lambda表达式进行过滤</p>
+<figure class="highlight livescript"><table><tr><td class="code"><pre><span class="line">@Test</span><br><span class="line">public <span class="literal">void</span> test4()&#123;</span><br><span class="line">      List&lt;Product&gt; products = filterProductByPredicate<span class="function"><span class="params">(proList, (p) -&gt; p.getPrice() &lt; <span class="number">8000</span>)</span>;</span></span><br><span class="line"><span class="function">      <span class="title">for</span> <span class="params">(Product pro : products)</span>&#123;</span></span><br><span class="line"><span class="function">          <span class="title">System</span>.<span class="title">out</span>.<span class="title">println</span><span class="params">(pro)</span>;</span></span><br><span class="line"><span class="function">      &#125;</span></span><br><span class="line"><span class="function">  &#125;</span></span><br></pre></td></tr></table></figure>
+<p>在jdk1.8中还有更加简便的操作 Stream API</p>
+<p>**优化四:**使用Stream API</p>
+<p>可以不用定义过滤方法,直接在集合上进行操作</p>
+<figure class="highlight livescript"><table><tr><td class="code"><pre><span class="line"><span class="regexp">// 使用jdk1.8中的Stream API进行集合的操作</span></span><br><span class="line"><span class="regexp">@Test</span></span><br><span class="line"><span class="regexp">public void test()&#123;</span></span><br><span class="line"><span class="regexp">    //</span> 根据价格过滤</span><br><span class="line">    proList.stream()</span><br><span class="line">           .fliter<span class="function"><span class="params">((p) -&gt; p.getPrice() &lt;<span class="number">8000</span>)</span></span></span><br><span class="line"><span class="function">           .<span class="title">limit</span><span class="params">(<span class="number">2</span>)</span></span></span><br><span class="line"><span class="function">           .<span class="title">forEach</span><span class="params">(System.out::println)</span>;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    // 根据颜色过滤</span></span><br><span class="line"><span class="function">    <span class="title">proList</span>.<span class="title">stream</span><span class="params">()</span></span></span><br><span class="line"><span class="function">           .<span class="title">fliter</span><span class="params">((p) -&gt; <span class="string">"红色"</span>.equals(p.getColor()))</span></span></span><br><span class="line"><span class="function">           .<span class="title">forEach</span><span class="params">(System.out::println)</span>;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">    // 遍历输出商品名称</span></span><br><span class="line"><span class="function">    <span class="title">proList</span>.<span class="title">stream</span><span class="params">()</span></span></span><br><span class="line"><span class="function">           .<span class="title">map</span><span class="params">(Product::getName)</span></span></span><br><span class="line"><span class="function">           .<span class="title">forEach</span><span class="params">(System.out::println)</span>;</span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>Lmabda表达式的语法总结： () -&gt; ();</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">前置</th>
+<th style="text-align:center">语法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">无参数无返回值</td>
+<td style="text-align:center">()-&gt;System.out.println(“hello”)</td>
+</tr>
+<tr>
+<td style="text-align:center">有一个参数无返回值</td>
+<td style="text-align:center">(x)-&gt;System.out.println(x)</td>
+</tr>
+<tr>
+<td style="text-align:center">有且只有一个参数无返回值</td>
+<td style="text-align:center">x-&gt;System.out.println(x)</td>
+</tr>
+<tr>
+<td style="text-align:center">有多个参数,有返回值,有多条lambda体语句</td>
+<td style="text-align:center">(x,y) -&gt; {System.out.println(“xx”);return xx;};</td>
+</tr>
+<tr>
+<td style="text-align:center">有多个参数,有返回值,只有一条lambda体语句</td>
+<td style="text-align:center">(x,y)-&gt; xxxx</td>
+</tr>
+</tbody>
+</table>
+<p>口诀：左右遇一省括号，左侧推断类型省</p>
+<p>注：当一个接口中存在多个抽象方法时，如果使用lambda表达式，并不能智能匹配对应的抽象方法，因此引入了函数式接口的概念</p>
+<h2 id="二-函数式接口"><a class="markdownIt-Anchor" href="#二-函数式接口"></a> 二 <strong>函数式接口</strong></h2>
+]]></content>
+      <categories>
+        <category>面试</category>
+      </categories>
+      <tags>
+        <tag>JAVA</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MD插入图片</title>
+    <url>/2020/03/03/MarkDown/</url>
+    <content><![CDATA[<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">![<span class="string">图片下缀</span>](<span class="link">xxx名字/图片名字.格式</span>)</span><br></pre></td></tr></table></figure>
+<p>1 把主页配置文件<code>_config.yml</code> 里的<code>post_asset_folder:</code>这个选项设置为<code>true</code></p>
+<p>2 在你的hexo目录下执行这样一句话<code>npm install hexo-asset-image --save</code></p>
+<p>xxx指的是要插入的MD的文件名的文件夹</p>
+]]></content>
+      <categories>
+        <category>MarkDown</category>
+      </categories>
+      <tags>
+        <tag>常见操作</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Spring注入</title>
     <url>/2020/03/02/Spring%E6%B3%A8%E5%85%A5/</url>
     <content><![CDATA[<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">beans</span> <span class="attr">xmlns</span>=<span class="string">"http://www.springframework.org/schema/beans"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xmlns:xsi</span>=<span class="string">"http://www.w3.org/2001/XMLSchema-instance"</span> <span class="attr">xmlns:util</span>=<span class="string">"http://www.springframework.org/schema/util"</span></span></span><br><span class="line"><span class="tag">       <span class="attr">xsi:schemaLocation</span>=<span class="string">"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userDao"</span> <span class="attr">class</span>=<span class="string">"com.itheima.ioc.UserDaoImpl"</span> /&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"userService"</span> <span class="attr">class</span>=<span class="string">"com.itheima.ioc.UserServiceImpl"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"userDao"</span> <span class="attr">ref</span>=<span class="string">"userDao"</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
@@ -116,8 +221,126 @@
       </tags>
   </entry>
   <entry>
-    <title>JAVA面试1</title>
+    <title>JAVA垃圾回收GC</title>
     <url>/2020/03/01/JAVA/</url>
+    <content><![CDATA[<p><img src="JAVA%E9%9D%A2%E8%AF%951/JAVA%E5%86%85%E5%AD%98.jpg" alt="JAVA内存机制" /></p>
+<h4 id="java内存机制"><a class="markdownIt-Anchor" href="#java内存机制"></a> JAVA内存机制</h4>
+<blockquote>
+<ul>
+<li>私有内存区:伴随线程产生而产生 , 一旦线程终止, 私有内存区也会自动清除</li>
+<li>程序计数器: 指示当前程序执行到了哪一行,执行Java方法时记录正在执行的虚拟机字节码指令地址; 执行本地方法时, 计数器值为NULL</li>
+<li>虚拟机栈: 用于执行Java方法, 栈存储局部变量表, 操作数栈, 动态链接, 方法返回地址和一些额外的附加信息. 程序执行时入栈; 执行完成后栈帧出栈.</li>
+<li>Java堆: Java虚拟机管理的内存最大的 一块, 所有线程共享, 几乎所有的对象实例和数组都在这里分配内存. <strong>GC主要就是在Java堆里进行</strong>.堆内存又分为: 新生代(新生代又分为 Eden80%, Survivor20%) 和老生代(Old) , 并且一般新生代的空间比老年代大.</li>
+<li>方法区: 只有一个方法区共享. 实际也是堆,只是用于存储类, 常量相关的信息, 来存放程序中永远不变或唯一的内容(类信息[Class对象], 静态变量, 字符串常量等). 但是已经被最新的JVM取消了,现在,被加载的类作为元数据加载到底层操作系统的本地内存区.</li>
+</ul>
+</blockquote>
+<h4 id="垃圾回收机制"><a class="markdownIt-Anchor" href="#垃圾回收机制"></a> 垃圾回收机制</h4>
+<h6 id="gc的主要任务"><a class="markdownIt-Anchor" href="#gc的主要任务"></a> Gc的主要任务:</h6>
+<ol>
+<li>分配内存</li>
+<li>确保被引用对象的内存不被错误的回收</li>
+<li>回收不再被引用的对象的内存空间</li>
+</ol>
+<h6 id="垃圾回收机制的主要解决问题"><a class="markdownIt-Anchor" href="#垃圾回收机制的主要解决问题"></a> 垃圾回收机制的主要解决问题</h6>
+<ol>
+<li>哪些内存需要回收</li>
+<li>什么时候回收</li>
+<li>如何回收</li>
+</ol>
+<a id="more"></a>
+<p><strong>针对问题1: 垃圾收集器会对堆进行回收前, 去确定对象中哪些是&quot;存活&quot; , 哪些是&quot; 死亡&quot; (不能再被任何途径使用的对象)</strong></p>
+<p>判断:</p>
+<ol>
+<li>
+<p>引用计数法</p>
+<p>每当一个地方引用时, 计数器+1 ; 引用失效时, 计数器 -1; 计数值 =0  不可能再被引用</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//举例：</span></span><br><span class="line">        Test test1 = <span class="keyword">new</span> Test();</span><br><span class="line">        Test test2 = <span class="keyword">new</span> Test();</span><br><span class="line">        test1.obj = test2;</span><br><span class="line">        test2.obj = test1;</span><br><span class="line">        <span class="comment">//test1 ，test12能否被回收？</span></span><br><span class="line">        System.gc();</span><br></pre></td></tr></table></figure>
+<p>查看运行结果，会发现并没有因为两个对象互相引用就没有回收，因此引用计数算法很难解决<strong>对象之间相互矛盾循环引用</strong>的问题。</p>
+</li>
+<li>
+<p>可达性分析算法:</p>
+<p>向图,树图, 把一系列&quot;GC Roots&quot; 作为起始点, 从节点向下搜索, 路径成为引用链, 当一个对象到 GC Roots没有任何引用链相连, 即不可达时, 则证明此对象是不可用的.</p>
+<p>**Eg:**一颗树有很多丫枝，其中一个分支断了，跟树上没有任何联系，那就说明这个分支没有用了，就可以当垃圾回收去烧了。</p>
+<p>**Tips:**在Java中可作为GCRoots的对象:</p>
+<ol>
+<li>虚拟机栈(栈帧中的本地变量表)中引用的对象</li>
+<li>方法区中类静态属性引用的对象;</li>
+<li>方法区中常量引用的对象</li>
+<li>本地方法栈中JNI引用的对象.</li>
+</ol>
+</li>
+</ol>
+<h6 id=""><a class="markdownIt-Anchor" href="#"></a> </h6>
+<p><strong>问题2   什么时候回收?</strong></p>
+<p>即使是被判断不可达的对象, 也要再进行筛选, 当对象没有覆盖finalize()方法, 或者finaize()方法已经被虚拟机调用过, 则没有必要执行;</p>
+<p>如果有必要执行:</p>
+<ol>
+<li>放置在F-Queue队列中</li>
+<li>Finalizer线程执行</li>
+</ol>
+<p>**Tips:**对象可以在被GC时可以自我拯救（this），机会只有一次，因为任何一个对象的finalize() 方法都只会被系统自动调用一次。并不建议使用，应该避免。使用try_finaly或者其他方式。</p>
+<p><strong>问题3  如何回收</strong></p>
+<ol>
+<li>
+<p>标记.清除算法</p>
+<p>两个阶段: 标记, 清除;</p>
+<p>不足: 效率问题,空间问题(会产生大量不连续的内存碎片)</p>
+</li>
+<li>
+<p>复制算法(新生代 )</p>
+<p>将可用内存按容量分为大小相等的两块, 每次都只使用其中一块;</p>
+<p>不足: 将内存缩小为了原来的一半</p>
+</li>
+<li>
+<p>标记. 整理算法  (Old)</p>
+<p>标记,清除(让存活的对象都像一端移动)</p>
+</li>
+</ol>
+<p>垃圾回收的流程:</p>
+<ol>
+<li>新建的对象,大部分存储在Eden中</li>
+<li>当Eden内存不够, 就进行Minor GC释放掉不活跃的对象存放到另一个Survivor中,(如Survivor1).</li>
+<li>当Eden区再次满了, 将Survivor1中不能清空的内容放到Survivor2中,同时将Eden区.中的不能清空的对象, 复制到Survivor1, 同时清空Eden区</li>
+<li>重复多次(默认15次) :Survivor中没有被清理的对象会复制到老年区(Old)</li>
+<li>当Old达到一定比例就会触发Major GC释放老年代</li>
+<li>当Old区满了, 则触发一个一次完整的垃圾回收(Full GC)</li>
+<li>如果内存还是不够, JVM会抛出内存不足, 发生oom, 内存泄漏</li>
+</ol>
+<p><strong>默认比例:</strong></p>
+<ol>
+<li>新生代 ( Young ) 与老年代 ( Old ) 的比例的值为 1:2 ( 该值可以通过参数 –XX:NewRatio 来指定 );</li>
+<li>新生代 Edem : from : to = 8 : 1 : 1 ( 可以通过参数 –XX:SurvivorRatio 来设定 )</li>
+</ol>
+<p><strong>补充1:</strong> 分代垃圾回收</p>
+<blockquote>
+<ul>
+<li>Minor用于清理新生代(Eden)区域, Eden区满了就会触发一次Minor GC, 清理无用对象, 将有用对象复制到&quot;Survivor1&quot;, “Survivor2” 区中(这两个区，大小空间相同，同一时刻Survivor1和Survivor2只有一个在用一个为空).</li>
+<li>Major GC: 用于清理老年代区域</li>
+<li>Full GC: 用于清理新生代, 老年代区域, 成本较高, 会对系统性能产生影响.</li>
+</ul>
+</blockquote>
+<p><strong>补充2:</strong></p>
+<p>在对JVM调优的过程, 很大一部分工作就是对于Full GC 调节. 根据上述GC过程, 我们可以发现老年代被写满, System.gc()被现实调用, 上一次GC之后Heap的各域分配策略动态变化都可能导致Full GC.</p>
+<p>开发中容易造成内存泄漏的操作:</p>
+<blockquote>
+<ul>
+<li>创建大量无用的对象:比如需要大量连接字符串时,使用String而不是StringBulider/StringBuffer/线程池.</li>
+<li>静态集合类的使用: HashMap, Vector , List</li>
+<li>各种连接对象未及时释放关闭</li>
+<li>监听器的使用</li>
+</ul>
+</blockquote>
+]]></content>
+      <categories>
+        <category>面试</category>
+      </categories>
+      <tags>
+        <tag>JAVA</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JAVA面试1</title>
+    <url>/2020/03/01/JAVA%E9%9D%A2%E8%AF%951/</url>
     <content><![CDATA[<h4 id="java内存机制"><a class="markdownIt-Anchor" href="#java内存机制"></a> JAVA内存机制</h4>
 <blockquote>
 <ul>
