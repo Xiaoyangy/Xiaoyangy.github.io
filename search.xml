@@ -1,6 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>合并区间</title>
+    <url>/2020/03/04/%E5%90%88%E5%B9%B6%E5%BA%8F%E5%88%97/</url>
+    <content><![CDATA[<p>leecode 56</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">题目：给出一个区间的集合，请合并所有重叠的区间。</span><br><span class="line"></span><br><span class="line">示例 1:</span><br><span class="line"></span><br><span class="line">输入: [[1,3],[2,6],[8,10],[15,18]]</span><br><span class="line">输出: [[1,6],[8,10],[15,18]]</span><br><span class="line">解释: 区间 [1,3] 和 [2,6] 重叠, 将它们合并为 [1,6].</span><br><span class="line">示例 2:</span><br><span class="line"></span><br><span class="line">输入: [[1,4],[4,5]]</span><br><span class="line">输出: [[1,5]]</span><br><span class="line">解释: 区间 [1,4] 和 [4,5] 可被视为重叠区间。</span><br></pre></td></tr></table></figure>
+<p>思路：</p>
+<ul>
+<li>
+<p>首先对集合进行排序，intervals.sort( )按照每个数组的首个数字排序；</p>
+</li>
+<li>
+<p>考虑前一区间、后一区间的重叠关系：“交叉”、“覆盖”</p>
+</li>
+<li>
+<p>使用一临时区间temp记录合并后的左右端点，合并时更新temp的右端点即可。</p>
+<a id="more"></a>
+</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;bits/stdc++.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; a,<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; b)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(a[<span class="number">0</span>]!=b[<span class="number">0</span>])</span><br><span class="line">        <span class="keyword">return</span> a[<span class="number">0</span>]&lt;b[<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">return</span> a[<span class="number">1</span>]&lt;b[<span class="number">1</span>];</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &gt; ve;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; f;</span><br><span class="line">    f.push_back(<span class="number">1</span>);</span><br><span class="line">    f.push_back(<span class="number">3</span>);</span><br><span class="line">    ve.push_back(f);</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; g;</span><br><span class="line">    g.push_back(<span class="number">2</span>);</span><br><span class="line">    g.push_back(<span class="number">6</span>);</span><br><span class="line">    ve.push_back(g);</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; h;</span><br><span class="line">    h.push_back(<span class="number">8</span>);</span><br><span class="line">    h.push_back(<span class="number">10</span>);</span><br><span class="line">    ve.push_back(h);</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; j;</span><br><span class="line">    j.push_back(<span class="number">15</span>);</span><br><span class="line">    j.push_back(<span class="number">18</span>);</span><br><span class="line">    ve.push_back(j);</span><br><span class="line">    sort(ve.<span class="built_in">begin</span>(),ve.<span class="built_in">end</span>(),cmp);</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &gt; v;</span><br><span class="line">    <span class="keyword">int</span> left=ve[<span class="number">0</span>][<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">int</span> right=ve[<span class="number">0</span>][<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;ve.<span class="built_in">size</span>();i++)&#123;</span><br><span class="line">        <span class="keyword">if</span>(ve[i][<span class="number">0</span>]&lt;=right)&#123;</span><br><span class="line">            right=<span class="built_in">max</span>(ve[i][<span class="number">1</span>],right);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; q;</span><br><span class="line">            q.push_back(left);</span><br><span class="line">            q.push_back(right);</span><br><span class="line">            v.push_back(q);</span><br><span class="line">            left=ve[i][<span class="number">0</span>];</span><br><span class="line">            right=ve[i][<span class="number">1</span>];</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; s;</span><br><span class="line">       s.push_back(left);</span><br><span class="line">       s.push_back(right);</span><br><span class="line">       v.push_back(s);</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;v.<span class="built_in">size</span>();i++)</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;v[i][<span class="number">0</span>]&lt;&lt;<span class="string">","</span>&lt;&lt;v[i][<span class="number">1</span>]&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//方案1   排序后比较.</span></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>算法</category>
+      </categories>
+      <tags>
+        <tag>算法</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Spring题目</title>
     <url>/2020/03/03/Spring%E9%A2%98%E7%9B%AE/</url>
     <content><![CDATA[<p><strong>AOP(面向切面编程)</strong></p>
