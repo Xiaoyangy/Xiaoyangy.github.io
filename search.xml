@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>background</title>
+    <url>/2020/03/07/background/</url>
+    <content><![CDATA[<p>body {<br>
+background:url(<a href="https://uploadbeta.com/api/pictures/random/?key=BingEveryday">https://uploadbeta.com/api/pictures/random/?key=BingEveryday</a>	WallpaperPicture);<br>
+background-repeat: no-repeat;<br>
+background-attachment: fixed;<br>
+background-position: center;<br>
+}</p>
+<p>url : 指定链接</p>
+<p>repeat: 重复问题</p>
+<p>attachment: 是否移动</p>
+<p>position: 出现位置</p>
+]]></content>
+      <categories>
+        <category>css</category>
+      </categories>
+  </entry>
+  <entry>
     <title>实现queue</title>
     <url>/2020/03/05/%E5%AE%9E%E7%8E%B0queue/</url>
     <content><![CDATA[]]></content>
@@ -680,6 +698,25 @@
       </tags>
   </entry>
   <entry>
+    <title>JAVA面试1</title>
+    <url>/2020/03/01/JAVA%E9%9D%A2%E8%AF%951/</url>
+    <content><![CDATA[<h4 id="java内存机制"><a class="markdownIt-Anchor" href="#java内存机制"></a> JAVA内存机制</h4>
+<blockquote>
+<ul>
+<li>私有内存区:伴随线程产生而产生 , 一旦线程终止, 私有内存区也会自动清除</li>
+<li></li>
+</ul>
+</blockquote>
+<p>​</p>
+]]></content>
+      <categories>
+        <category>面试</category>
+      </categories>
+      <tags>
+        <tag>JAVA</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>JAVA垃圾回收GC</title>
     <url>/2020/03/01/JAVA/</url>
     <content><![CDATA[<p><img src="/.com/2020/03//JAVA%E5%86%85%E5%AD%98.jpg" alt></p>
@@ -789,25 +826,6 @@
 <li>监听器的使用</li>
 </ul>
 </blockquote>
-]]></content>
-      <categories>
-        <category>面试</category>
-      </categories>
-      <tags>
-        <tag>JAVA</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JAVA面试1</title>
-    <url>/2020/03/01/JAVA%E9%9D%A2%E8%AF%951/</url>
-    <content><![CDATA[<h4 id="java内存机制"><a class="markdownIt-Anchor" href="#java内存机制"></a> JAVA内存机制</h4>
-<blockquote>
-<ul>
-<li>私有内存区:伴随线程产生而产生 , 一旦线程终止, 私有内存区也会自动清除</li>
-<li></li>
-</ul>
-</blockquote>
-<p>​</p>
 ]]></content>
       <categories>
         <category>面试</category>
