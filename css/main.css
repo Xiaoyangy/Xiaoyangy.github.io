@@ -1267,6 +1267,16 @@ pre .javascript .function {
 .use-motion .collection-title {
   opacity: 0;
 }
+.post-body p a {
+  color: #0593d3;
+  border-bottom: none;
+  border-bottom: 1px solid #0593d3;
+}
+.post-body p a:hover {
+  color: #fc6423;
+  border-bottom: none;
+  border-bottom: 1px solid #fc6423;
+}
 .posts-expand {
   padding-top: 40px;
 }
@@ -1823,7 +1833,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #dfff81;
+  background: #ffffb5;
 }
 .links-of-blogroll {
   font-size: 13px;
@@ -2982,6 +2992,11 @@ pre .javascript .function {
   box-shadow: initial;
   border-radius: initial;
 }
+@media (min-width: 768px) and (max-width: 991px) {
+  .content-wrap {
+    float: none;
+  }
+}
 .post-block {
   padding: 40px;
   background: #fff;
@@ -3122,15 +3137,19 @@ pre .javascript .function {
   }
 }
 body {
-  background: url("https://source.unsplash.com/random/1920*1080");
+  background: url("https://uploadbeta.com/api/pictures/random/?key=BingEverydayWallpaperPicture");
   background-repeat: no-repeat;
   background-attachment: fixed;
-  background-position: 50% 50%;
 }
 .main-inner {
-  margin-top: 60px;
-  padding: 60px 60px 60px 60px;
   background: #fff;
-  opacity: 0.8;
-  min-height: 500px;
+  opacity: 0.9;
+}
+.site-nav-toggle {
+  top: 0;
+  -webkit-transform: translateY(78%);
+  -moz-transform: translateY(78%);
+  -ms-transform: translateY(78%);
+  -o-transform: translateY(78%);
+  transform: translateY(78%);
 }
