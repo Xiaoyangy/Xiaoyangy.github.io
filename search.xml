@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>mybatis参数异常</title>
+    <url>/2020/03/08/mybatis%E5%8F%82%E6%95%B0%E5%BC%82%E5%B8%B8/</url>
+    <content><![CDATA[<p>mybatis 参数格式异常-- Error querying database. Cause: java.lang.NumberFormatException: For input string</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line">mybatis中 <span class="tag">&lt;<span class="name">if</span>&gt;</span><span class="tag">&lt;/<span class="name">if</span>&gt;</span>标签中进行判断时，如果传入的时字符格式和数字进行判断需要将数字进行转译，否则默认是数字和数字进行比较，这是就会出现参数格式异常</span><br><span class="line">如<span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"department != 0 and department != null"</span> &gt;</span> 中不对0进行转译就会出现这个错误</span><br><span class="line">可以将0用“”引起来，外面的“”改编成‘’或者将0变成‘0’.toString()，如下所示：（将0直接以‘’处理就会变成String格式和char格式进行比较，也会出现同类错误）</span><br><span class="line"><span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">‘department</span> != <span class="string">“0”</span> <span class="attr">and</span> <span class="attr">department</span> != <span class="string">null’</span> &gt;</span></span><br><span class="line">或者</span><br><span class="line"><span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">"department != ‘0’.toString() and department != null"</span> &gt;</span></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>mybatis</category>
+      </categories>
+      <tags>
+        <tag>犯过的错误</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Unknowncharacter解决方法</title>
+    <url>/2020/03/08/character%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</url>
+    <content><![CDATA[<p>Unknown initial character set index ‘255’ received from server. Initial client character set can be forced via the ‘characterEncoding’ property.</p>
+<p>从错误的提示信息中发现字符集设置出现问题</p>
+<p>修改为以下即可</p>
+<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">jdbc.url= <span class="string">jdbc:</span><span class="string">mysql:</span><span class="comment">//localhost:3306/mybatis?useUnicode=true&amp;characterEncoding=utf8</span></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>数据库</category>
+      </categories>
+  </entry>
+  <entry>
     <title>日志代码</title>
     <url>/2020/03/08/%E6%97%A5%E5%BF%97%E4%BB%A3%E7%A0%81/</url>
     <content><![CDATA[<p>位置: next/layout/_macro/sidebar.swig/</p>
