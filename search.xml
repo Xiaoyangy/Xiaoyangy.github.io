@@ -3,7 +3,7 @@
   <entry>
     <title>自动关机脚本</title>
     <url>/2020/05/02/%E8%87%AA%E5%8A%A8%E5%85%B3%E6%9C%BA%E8%84%9A%E6%9C%AC/</url>
-    <content><![CDATA[<p><a href="/download/%E8%87%AA%E5%8A%A8%E5%85%B3%E6%9C%BA%E8%84%9A%E6%9C%AC.bat%22">点击下载</a></p>
+    <content><![CDATA[<p><a href="/download/%E8%87%AA%E5%8A%A8%E5%85%B3%E6%9C%BA%E8%84%9A%E6%9C%AC.bat">点击下载</a></p>
 <p>不要点。</p>
 <p>脚本内容：</p>
 <p>@echo off<br>
@@ -1057,7 +1057,7 @@ background-position: center;<br>
   <entry>
     <title>JAVA垃圾回收GC</title>
     <url>/2020/03/01/JAVA/</url>
-    <content><![CDATA[<p><img src="/.com/2020/03//JAVA%E5%86%85%E5%AD%98.jpg" alt></p>
+    <content><![CDATA[<p><img src="/01/JAVA/JAVA%E5%86%85%E5%AD%98.jpg" alt></p>
 <h4 id="java内存机制"><a class="markdownIt-Anchor" href="#java内存机制"></a> JAVA内存机制</h4>
 <blockquote>
 <ul>
